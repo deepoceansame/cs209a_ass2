@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Set;
 
 public class Client implements Runnable{
 
@@ -16,7 +17,8 @@ public class Client implements Runnable{
     public Socket serverSocket;
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
-    public List<String> existUserNames;
+    public Set<String> existUserNames;
+    public boolean hasParticipated;
 
     public Client() throws IOException {
         serverSocket = new Socket("localhost", 7777);
@@ -24,6 +26,7 @@ public class Client implements Runnable{
         objectOutputStream = new ObjectOutputStream(outputStream);
         InputStream inputStream = serverSocket.getInputStream();
         objectInputStream = new ObjectInputStream(inputStream);
+        hasParticipated = false;
     }
 
     public void startHandleInfoFromServer() {

@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<metadata>
+  <groupId>cn.edu.sustech.cs209.chatting</groupId>
+  <artifactId>chatting</artifactId>
+  <versioning>
+    <versions>
+      <version>dev-SNAPSHOT</version>
+    </versions>
+    <lastUpdated>20230404101207</lastUpdated>
+  </versioning>
+</metadata>

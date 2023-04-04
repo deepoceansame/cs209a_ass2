@@ -1,0 +1,5 @@
+#NOTE: This is a Maven Resolver internal implementation file, its format can be changed without prior notice.
+#Tue Apr 04 17:56:21 CST 2023
+javafx-graphics-19.0.2.1.pom>nexus-aliyun=
+javafx-graphics-19.0.2.1.jar>nexus-aliyun=
+javafx-graphics-19.0.2.1-linux.jar>nexus-aliyun=

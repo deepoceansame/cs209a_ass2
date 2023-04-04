@@ -10,9 +10,9 @@ import java.io.IOException;
 public class Main extends Application {
 
     public static void main(String[] args) throws IOException {
-//        launch();
-        Client client = new Client();
-        client.startHandleInfoFromServer();
+        launch();
+//        Client client = new Client();
+//        client.startHandleInfoFromServer();
     }
 
     @Override
