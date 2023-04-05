@@ -14,6 +14,8 @@ class ClientHandler implements Runnable {
     Socket clientSocket;
     ObjectOutputStream objectOutputStream;
     ObjectInputStream objectInputStream;
+    public boolean hasParticipated;
+    String username;
 
     public ClientHandler(Socket clientSocket, Server server) throws IOException {
         this.clientSocket = clientSocket;
@@ -22,6 +24,7 @@ class ClientHandler implements Runnable {
         objectOutputStream = new ObjectOutputStream(outputStream);
         InputStream inputStream = clientSocket.getInputStream();
         objectInputStream = new ObjectInputStream(inputStream);
+        hasParticipated = false;
     }
 
     @Override
@@ -53,11 +56,24 @@ class ClientHandler implements Runnable {
     private void handleWantToParti(HelpPacket hp) throws IOException {
         String userName = hp.newUserName;
         System.out.println(userName + "want to participate");
-        server.userNames.add(hp.newUserName);
-        HelpPacket re_hp = new HelpPacket();
-        re_hp.isSuccess = true;
-        re_hp.existUsernames = new HashSet<>(server.userNames);
-        objectOutputStream.writeObject(re_hp);
+        if (!server.userNames.contains(userName)){
+            server.userNames.add(hp.newUserName);
+            hasParticipated = true;
+            HelpPacket re_hp = new HelpPacket();
+            re_hp.operationCode = OperationCode.RE_WANTI_TO_PARTI;
+            re_hp.isSuccess = true;
+            re_hp.existUsernames = new HashSet<>(server.userNames);
+            objectOutputStream.writeObject(re_hp);
+            objectOutputStream.flush();
+        } else {
+            HelpPacket re_hp = new HelpPacket();
+            re_hp.operationCode = OperationCode.RE_WANTI_TO_PARTI;
+            re_hp.isSuccess = false;
+            re_hp.attachMessage = "duplicate name, can not participate in";
+            objectOutputStream.writeObject(re_hp);
+            objectOutputStream.flush();
+        }
+
     }
 
     private void handleGetExistUsernames(HelpPacket hp) throws IOException {

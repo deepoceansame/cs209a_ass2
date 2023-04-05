@@ -22,8 +22,8 @@ public class Server {
         while (!ss.isClosed()) {
             Socket clientSocket = ss.accept(); // blocking call, this will wait until a connection is attempted on this port.
             System.out.println("Connection from " + clientSocket + "!");
-
-            new Thread(new ClientHandler(clientSocket, this)).start();
+            ClientHandler handlerForThisClientSocket = new ClientHandler(clientSocket, this);
+            new Thread(handlerForThisClientSocket).start();
         }
     }
 }

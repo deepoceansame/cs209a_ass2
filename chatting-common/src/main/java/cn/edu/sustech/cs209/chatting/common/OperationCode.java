@@ -10,5 +10,6 @@ public enum OperationCode {
     RE_NEW_CHATROOM,
     RE_NEW_MESSAGE,
     RE_NEW_USERNAME,
+    RE_WANTI_TO_PARTI
 
 }

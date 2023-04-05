@@ -20,6 +20,8 @@ public class Client implements Runnable{
     public Set<String> existUserNames;
     public boolean hasParticipated;
 
+    public Thread clientListenThread;
+
     public Client() throws IOException {
         serverSocket = new Socket("localhost", 7777);
         OutputStream outputStream = serverSocket.getOutputStream();
@@ -30,24 +32,12 @@ public class Client implements Runnable{
     }
 
     public void startHandleInfoFromServer() {
-        new Thread(
+        clientListenThread = new Thread(
                 () -> {
                     try{
                         while(serverSocket.isConnected()){
-                            Scanner in = new Scanner(System.in);
-                            System.out.println("input new userName");
-                            String username = in.nextLine();
-                            HelpPacket hp = new HelpPacket();
-                            hp.operationCode = OperationCode.WANT_TO_PARTI;
-                            hp.newUserName = username;
-                            System.out.println("echo your input username: "+username);
-                            objectOutputStream.writeObject(hp);
-                            System.out.println("have output and reset");
                             HelpPacket re_hp = (HelpPacket) objectInputStream.readObject();
-                            System.out.println("isSuccess");
-                            System.out.println(re_hp.isSuccess);
-                            System.out.println("existUserNames");
-                            System.out.println(re_hp.existUsernames);
+                            handleRehp(re_hp);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -55,7 +45,13 @@ public class Client implements Runnable{
                                 objectInputStream, objectOutputStream);
                     }
                 }
-        ).start();
+        );
+
+        clientListenThread.start();
+    }
+
+    private void handleRehp(HelpPacket re_hp){
+
     }
 
     @Override
