@@ -7,6 +7,7 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.Map;
 
 class ClientHandler implements Runnable {
 
@@ -54,17 +55,31 @@ class ClientHandler implements Runnable {
     }
 
     private void handleWantToParti(HelpPacket hp) throws IOException {
-        String userName = hp.newUserName;
-        System.out.println(userName + "want to participate");
-        if (!server.userNames.contains(userName)){
+        String userNameHP = hp.newUserName;
+        System.out.println(userNameHP + " want to participate");
+        if (!server.userNameToClientHandler.containsKey(userNameHP)){
             server.userNames.add(hp.newUserName);
+            server.userNameToClientHandler.put(userNameHP, this);
             hasParticipated = true;
+            this.username = userNameHP;
+
             HelpPacket re_hp = new HelpPacket();
             re_hp.operationCode = OperationCode.RE_WANTI_TO_PARTI;
             re_hp.isSuccess = true;
             re_hp.existUsernames = new HashSet<>(server.userNames);
             objectOutputStream.writeObject(re_hp);
             objectOutputStream.flush();
+
+            String un;
+            ClientHandler ch;
+            for (Map.Entry<String, ClientHandler> entry:server.userNameToClientHandler.entrySet()){
+                un = entry.getKey();
+                ch = entry.getValue();
+                if (!un.equals(userNameHP)){
+                    ch.sendNewUserName(userNameHP);
+                }
+            }
+
         } else {
             HelpPacket re_hp = new HelpPacket();
             re_hp.operationCode = OperationCode.RE_WANTI_TO_PARTI;
@@ -78,6 +93,14 @@ class ClientHandler implements Runnable {
 
     private void handleGetExistUsernames(HelpPacket hp) throws IOException {
 
+    }
+
+    public void sendNewUserName(String username) throws IOException {
+        HelpPacket hp = new HelpPacket();
+        hp.newUserName = username;
+        hp.operationCode = OperationCode.RE_NEW_USERNAME;
+        objectOutputStream.writeObject(hp);
+        objectOutputStream.flush();
     }
 
     public void closeEverything(
@@ -103,6 +126,15 @@ class ClientHandler implements Runnable {
             }
         } catch (Exception e) {
             e.printStackTrace();
+        }
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof ClientHandler){
+          return ((ClientHandler)obj).username.equals(username);
+        } else {
+            return false;
         }
     }
 }

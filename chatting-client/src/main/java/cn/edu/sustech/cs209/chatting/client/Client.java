@@ -11,7 +11,6 @@ import java.util.Set;
 
 public class Client implements Runnable{
 
-    public List<String> usernames;
     public BufferedReader bufferedReader;
     public BufferedWriter bufferedWriter;
     public Socket serverSocket;
@@ -19,8 +18,12 @@ public class Client implements Runnable{
     public ObjectInputStream objectInputStream;
     public Set<String> existUserNames;
     public boolean hasParticipated;
-
-    public Thread clientListenThread;
+    public Thread serverHandlerThread;
+    public Runnable serverHandler;
+    public Thread userHandlerThread;
+    public Runnable userHandler;
+    public String userName;
+    public volatile boolean re_wanti_parti_duplicate;
 
     public Client() throws IOException {
         serverSocket = new Socket("localhost", 7777);
@@ -32,26 +35,17 @@ public class Client implements Runnable{
     }
 
     public void startHandleInfoFromServer() {
-        clientListenThread = new Thread(
-                () -> {
-                    try{
-                        while(serverSocket.isConnected()){
-                            HelpPacket re_hp = (HelpPacket) objectInputStream.readObject();
-                            handleRehp(re_hp);
-                        }
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                        closeEverything(serverSocket, bufferedReader, bufferedWriter,
-                                objectInputStream, objectOutputStream);
-                    }
-                }
-        );
-
-        clientListenThread.start();
+        ServerInfoHandlerOfClient serverInfoHandler = new ServerInfoHandlerOfClient(this);
+        serverHandler = serverInfoHandler;
+        serverHandlerThread = new Thread(serverInfoHandler);
+        serverHandlerThread.start();
     }
 
-    private void handleRehp(HelpPacket re_hp){
-
+    public void startHandleUser() {
+        UserHandlerOfClient userHandlerOfClient = new UserHandlerOfClient(this);
+        userHandler = userHandlerOfClient;
+        userHandlerThread = new Thread(userHandler);
+        userHandlerThread.start();
     }
 
     @Override

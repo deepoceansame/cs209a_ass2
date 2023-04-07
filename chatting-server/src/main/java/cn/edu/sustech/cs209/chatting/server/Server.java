@@ -10,10 +10,11 @@ import java.util.concurrent.atomic.AtomicLong;
 public class Server {
     public Set<String> userNames;
     public AtomicLong notUsedChatRoomId;
-    public List<ClientHandler> clientHandlers;
+    public Map<String, ClientHandler> userNameToClientHandler;
     public Server(){
         userNames = Collections.synchronizedSet(new HashSet<>());
         notUsedChatRoomId = new AtomicLong(0);
+        userNameToClientHandler = Collections.synchronizedMap(new HashMap<>());
     }
 
     public void start() throws IOException {

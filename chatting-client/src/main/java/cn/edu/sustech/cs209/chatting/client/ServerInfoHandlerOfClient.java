@@ -1,0 +1,92 @@
+package cn.edu.sustech.cs209.chatting.client;
+
+import cn.edu.sustech.cs209.chatting.common.HelpPacket;
+import cn.edu.sustech.cs209.chatting.common.OperationCode;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
+import java.net.Socket;
+import java.util.HashSet;
+
+public class ServerInfoHandlerOfClient implements Runnable{
+
+    public Client client;
+    public Socket serverSocket;
+    public ObjectInputStream objectInputStream;
+    public ObjectOutputStream objectOutputStream;
+
+
+    public ServerInfoHandlerOfClient(Client client){
+        this.client = client;
+        objectInputStream = client.objectInputStream;
+        objectOutputStream = client.objectOutputStream;
+        serverSocket = client.serverSocket;
+    }
+
+    @Override
+    public void run() {
+        try{
+            while(serverSocket.isConnected()){
+                HelpPacket re_hp = (HelpPacket) objectInputStream.readObject();
+                handleRehp(re_hp);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            closeEverything(serverSocket, null, null,
+                    objectInputStream, objectOutputStream);
+        }
+    }
+
+    private void handleRehp(HelpPacket re_hp){
+        OperationCode opCode = re_hp.operationCode;
+        if (opCode==OperationCode.RE_WANTI_TO_PARTI){
+            handleReWantiToParti(re_hp);
+        }
+        else if (opCode==OperationCode.RE_NEW_USERNAME){
+            handleReNewUserName(re_hp);
+        }
+    }
+
+    public void handleReWantiToParti(HelpPacket re_hp){
+        if (re_hp.isSuccess){
+            client.existUserNames = new HashSet<>(re_hp.existUsernames);
+            client.hasParticipated = true;
+        } else {
+            System.out.println("server handler of client: duplicate Name");
+            client.re_wanti_parti_duplicate = true;
+        }
+    }
+
+    public void handleReNewUserName(HelpPacket re_hp){
+        client.existUserNames.add(re_hp.newUserName);
+        System.out.println("server handler of client: newUser:" + re_hp.newUserName);
+    }
+
+    public void closeEverything(
+            Socket socket,
+            BufferedReader bufferedReader, BufferedWriter bufferedWriter,
+            ObjectInputStream objectInputStream, ObjectOutputStream objectOutputStream
+    ) {
+        try{
+            if(socket!=null){
+                socket.close();
+            }
+            if (bufferedReader!=null){
+                bufferedReader.close();
+            }
+            if (bufferedWriter!=null){
+                bufferedWriter.close();
+            }
+            if (objectInputStream!=null){
+                objectInputStream.close();
+            }
+            if (objectOutputStream!=null){
+                objectOutputStream.close();
+            }
+        } catch (Exception e){
+            e.printStackTrace();
+        }
+    }
+}

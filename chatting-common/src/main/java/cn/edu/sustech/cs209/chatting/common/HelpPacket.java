@@ -11,7 +11,7 @@ public class HelpPacket implements Serializable {
 
     public OperationCode operationCode;
     public Set<String> existUsernames;
-    public List<String> newChatRoomUsernames;
+    public Set<String> newChatRoomUsernames;
     public Message newMessage;
     public Long newChatRoomId;
     public String exitedUserName;
