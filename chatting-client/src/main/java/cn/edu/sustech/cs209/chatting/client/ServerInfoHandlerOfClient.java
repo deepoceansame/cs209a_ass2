@@ -1,5 +1,6 @@
 package cn.edu.sustech.cs209.chatting.client;
 
+import cn.edu.sustech.cs209.chatting.common.Chatroom;
 import cn.edu.sustech.cs209.chatting.common.HelpPacket;
 import cn.edu.sustech.cs209.chatting.common.OperationCode;
 
@@ -45,7 +46,10 @@ public class ServerInfoHandlerOfClient implements Runnable{
             handleReWantiToParti(re_hp);
         }
         else if (opCode==OperationCode.RE_NEW_USERNAME){
-            handleReNewUserName(re_hp);
+            handleReNewUsername(re_hp);
+        }
+        else if (opCode==OperationCode.RE_NEW_CHATROOM){
+            handleReNewChatroom(re_hp);
         }
     }
 
@@ -59,9 +63,15 @@ public class ServerInfoHandlerOfClient implements Runnable{
         }
     }
 
-    public void handleReNewUserName(HelpPacket re_hp){
+    public void handleReNewUsername(HelpPacket re_hp) {
         client.existUserNames.add(re_hp.newUserName);
-        System.out.println("server handler of client: newUser:" + re_hp.newUserName);
+        System.out.println("server handler of client: newUser " + re_hp.newUserName);
+    }
+
+    public void handleReNewChatroom(HelpPacket re_hp) {
+        Chatroom chatroom = new Chatroom(re_hp.newChatRoomId, re_hp.newChatRoomUsernames);
+        client.chatroomMap.put(re_hp.newChatRoomId, chatroom);
+        System.out.println("server handler of client: add new chatRoom with " + re_hp.newChatRoomUsernames);
     }
 
     public void closeEverything(

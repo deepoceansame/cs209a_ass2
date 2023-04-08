@@ -8,6 +8,7 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 class ClientHandler implements Runnable {
 
@@ -52,13 +53,16 @@ class ClientHandler implements Runnable {
         else if (opCode==OperationCode.GET_EXIST_USERNAMES){
             handleGetExistUsernames(hp);
         }
+        else if (opCode==OperationCode.NEW_CHATROOM){
+            handleNewChatRoom(hp);
+        }
     }
 
     private void handleWantToParti(HelpPacket hp) throws IOException {
         String userNameHP = hp.newUserName;
         System.out.println(userNameHP + " want to participate");
         if (!server.userNameToClientHandler.containsKey(userNameHP)){
-            server.userNames.add(hp.newUserName);
+            server.usernames.add(hp.newUserName);
             server.userNameToClientHandler.put(userNameHP, this);
             hasParticipated = true;
             this.username = userNameHP;
@@ -66,7 +70,7 @@ class ClientHandler implements Runnable {
             HelpPacket re_hp = new HelpPacket();
             re_hp.operationCode = OperationCode.RE_WANTI_TO_PARTI;
             re_hp.isSuccess = true;
-            re_hp.existUsernames = new HashSet<>(server.userNames);
+            re_hp.existUsernames = new HashSet<>(server.usernames);
             objectOutputStream.writeObject(re_hp);
             objectOutputStream.flush();
 
@@ -76,7 +80,7 @@ class ClientHandler implements Runnable {
                 un = entry.getKey();
                 ch = entry.getValue();
                 if (!un.equals(userNameHP)){
-                    ch.sendNewUserName(userNameHP);
+                    ch.sendReNewUsername(userNameHP);
                 }
             }
 
@@ -94,11 +98,33 @@ class ClientHandler implements Runnable {
     private void handleGetExistUsernames(HelpPacket hp) throws IOException {
 
     }
+    private void handleNewChatRoom(HelpPacket hp) throws IOException {
+        Long chatRoomId = server.notUsedChatRoomId.getAndAdd(1);
+        Set<String> usernamesOfTheChatRoom = hp.newChatRoomUsernames;
+        System.out.println(username + " want to add new chatroom with" + usernamesOfTheChatRoom);
+        usernamesOfTheChatRoom.add(username);
+        ClientHandler ch;
+        for (String username:usernamesOfTheChatRoom){
+            if (server.usernames.contains(username)){
+                ch = server.userNameToClientHandler.get(username);
+                ch.sendReNewChatroom(chatRoomId, usernamesOfTheChatRoom);
+            }
+        }
+    }
 
-    public void sendNewUserName(String username) throws IOException {
+    public void sendReNewUsername(String username) throws IOException {
         HelpPacket hp = new HelpPacket();
         hp.newUserName = username;
         hp.operationCode = OperationCode.RE_NEW_USERNAME;
+        objectOutputStream.writeObject(hp);
+        objectOutputStream.flush();
+    }
+
+    public void sendReNewChatroom(Long chatRoomId, Set<String> usernamesOfNewChatroom) throws IOException {
+        HelpPacket hp = new HelpPacket();
+        hp.newChatRoomUsernames = usernamesOfNewChatroom;
+        hp.newChatRoomId = chatRoomId;
+        hp.operationCode = OperationCode.RE_NEW_CHATROOM;
         objectOutputStream.writeObject(hp);
         objectOutputStream.flush();
     }

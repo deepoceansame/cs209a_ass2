@@ -8,11 +8,11 @@ import java.util.concurrent.BlockingDeque;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class Server {
-    public Set<String> userNames;
+    public Set<String> usernames;
     public AtomicLong notUsedChatRoomId;
     public Map<String, ClientHandler> userNameToClientHandler;
     public Server(){
-        userNames = Collections.synchronizedSet(new HashSet<>());
+        usernames = Collections.synchronizedSet(new HashSet<>());
         notUsedChatRoomId = new AtomicLong(0);
         userNameToClientHandler = Collections.synchronizedMap(new HashMap<>());
     }

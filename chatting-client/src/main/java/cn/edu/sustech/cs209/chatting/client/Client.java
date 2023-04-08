@@ -1,13 +1,12 @@
 package cn.edu.sustech.cs209.chatting.client;
 
+import cn.edu.sustech.cs209.chatting.common.Chatroom;
 import cn.edu.sustech.cs209.chatting.common.HelpPacket;
 import cn.edu.sustech.cs209.chatting.common.OperationCode;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.List;
-import java.util.Scanner;
-import java.util.Set;
+import java.util.*;
 
 public class Client implements Runnable{
 
@@ -23,6 +22,7 @@ public class Client implements Runnable{
     public Thread userHandlerThread;
     public Runnable userHandler;
     public String userName;
+    public Map<Long, Chatroom> chatroomMap;
     public volatile boolean re_wanti_parti_duplicate;
 
     public Client() throws IOException {
@@ -31,6 +31,7 @@ public class Client implements Runnable{
         objectOutputStream = new ObjectOutputStream(outputStream);
         InputStream inputStream = serverSocket.getInputStream();
         objectInputStream = new ObjectInputStream(inputStream);
+        chatroomMap = new HashMap<>();
         hasParticipated = false;
     }
 

@@ -7,8 +7,12 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 public class UserHandlerOfClient implements Runnable{
 
@@ -30,20 +34,38 @@ public class UserHandlerOfClient implements Runnable{
                 Scanner in = new Scanner(System.in);
                 if (!client.hasParticipated){
                     System.out.println("please input a username");
-                    String input_userName = in.nextLine();
-                    sendWantiToParti(input_userName);
+                    String input_username = in.nextLine();
+                    sendWantiToParti(input_username);
                     while (!client.hasParticipated){
                         if (client.re_wanti_parti_duplicate){
-                            System.out.println("user handler: duplicate Name Please input another");
+                            System.out.println("user handler: duplicate name Please input another");
                             client.re_wanti_parti_duplicate = false;
-                            input_userName = in.nextLine();
-                            sendWantiToParti(input_userName);
+                            input_username = in.nextLine();
+                            sendWantiToParti(input_username);
                         }
                     }
+
                     System.out.println("participate successful");
                 }
-                System.out.println(client.existUserNames);
-                TimeUnit.SECONDS.sleep(5);
+                System.out.println("0=showCurrentUsers 1=addNewChatroom 2=showCurrentChatroom 3=enterChatroom");
+                int userOpCode = in.nextInt();
+                if (userOpCode==0){
+                    System.out.println(client.existUserNames);
+                }
+                else if (userOpCode==1){
+                    System.out.println("please enter number of users of this chatroom");
+                    int num = in.nextInt();
+                    System.out.println("please enter a line of userNames");
+                    String[] usernamesArray = new String[num];
+                    for (int i=0;i<num;i++){
+                        usernamesArray[i] = in.next();
+                    }
+                    Set<String> usernamesOfNewChatroom = new HashSet<>(Arrays.asList(usernamesArray));
+                    sendNewChatroom(usernamesOfNewChatroom);
+                }
+                else if (userOpCode==2){
+                    System.out.println(client.chatroomMap);
+                }
             }
         } catch (Exception e){
             e.printStackTrace();
@@ -55,6 +77,13 @@ public class UserHandlerOfClient implements Runnable{
         HelpPacket hp = new HelpPacket();
         hp.operationCode = OperationCode.WANT_TO_PARTI;
         hp.newUserName = userName;
+        objectOutputStream.writeObject(hp);
+    }
+
+    public void sendNewChatroom(Set<String> usernamesOfNewChatroom) throws IOException {
+        HelpPacket hp = new HelpPacket();
+        hp.operationCode = OperationCode.NEW_CHATROOM;
+        hp.newChatRoomUsernames = usernamesOfNewChatroom;
         objectOutputStream.writeObject(hp);
     }
 }
