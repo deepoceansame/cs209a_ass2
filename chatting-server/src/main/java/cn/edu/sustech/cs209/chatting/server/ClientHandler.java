@@ -1,6 +1,8 @@
 package cn.edu.sustech.cs209.chatting.server;
 
+import cn.edu.sustech.cs209.chatting.common.Chatroom;
 import cn.edu.sustech.cs209.chatting.common.HelpPacket;
+import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.OperationCode;
 
 import java.io.*;
@@ -56,6 +58,9 @@ class ClientHandler implements Runnable {
         else if (opCode==OperationCode.NEW_CHATROOM){
             handleNewChatRoom(hp);
         }
+        else if (opCode==OperationCode.NEW_MESSAGE) {
+            handleNewMessage(hp);
+        }
     }
 
     private void handleWantToParti(HelpPacket hp) throws IOException {
@@ -102,7 +107,12 @@ class ClientHandler implements Runnable {
         Long chatRoomId = server.notUsedChatRoomId.getAndAdd(1);
         Set<String> usernamesOfTheChatRoom = hp.newChatRoomUsernames;
         System.out.println(username + " want to add new chatroom with" + usernamesOfTheChatRoom);
+
         usernamesOfTheChatRoom.add(username);
+
+        Chatroom chatroom = new Chatroom(chatRoomId, usernamesOfTheChatRoom);
+        server.chatroomMap.put(chatRoomId, chatroom);
+
         ClientHandler ch;
         for (String username:usernamesOfTheChatRoom){
             if (server.usernames.contains(username)){
@@ -110,6 +120,23 @@ class ClientHandler implements Runnable {
                 ch.sendReNewChatroom(chatRoomId, usernamesOfTheChatRoom);
             }
         }
+    }
+
+    private void handleNewMessage(HelpPacket hp) throws IOException {
+        Message message = hp.newMessage;
+        Long chatRoomId = message.chatroomId;
+        Chatroom chatroom = server.chatroomMap.get(chatRoomId);
+        chatroom.messages.add(message);
+        Set<String> usernames = chatroom.usernames;
+        ClientHandler ch;
+        for (String username : usernames) {
+            ch = server.userNameToClientHandler.get(username);
+            Message message_send =
+                    new Message(message.getTimestamp(), message.getSentBy(), message.getSendTo(), message.getData());
+            message_send.chatroomId = message.chatroomId;
+            ch.sendReNewMessage(message_send);
+        }
+
     }
 
     public void sendReNewUsername(String username) throws IOException {
@@ -125,6 +152,14 @@ class ClientHandler implements Runnable {
         hp.newChatRoomUsernames = usernamesOfNewChatroom;
         hp.newChatRoomId = chatRoomId;
         hp.operationCode = OperationCode.RE_NEW_CHATROOM;
+        objectOutputStream.writeObject(hp);
+        objectOutputStream.flush();
+    }
+
+    public void sendReNewMessage(Message message) throws IOException {
+        HelpPacket hp = new HelpPacket();
+        hp.newMessage = message;
+        hp.operationCode = OperationCode.RE_NEW_MESSAGE;
         objectOutputStream.writeObject(hp);
         objectOutputStream.flush();
     }

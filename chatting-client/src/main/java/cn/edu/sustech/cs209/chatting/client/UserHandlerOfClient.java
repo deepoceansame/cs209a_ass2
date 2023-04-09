@@ -1,6 +1,7 @@
 package cn.edu.sustech.cs209.chatting.client;
 
 import cn.edu.sustech.cs209.chatting.common.HelpPacket;
+import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.OperationCode;
 
 import java.io.IOException;
@@ -44,10 +45,11 @@ public class UserHandlerOfClient implements Runnable{
                             sendWantiToParti(input_username);
                         }
                     }
-
+                    client.username = input_username;
                     System.out.println("participate successful");
                 }
-                System.out.println("0=showCurrentUsers 1=addNewChatroom 2=showCurrentChatroom 3=enterChatroom");
+                System.out.println("0=showCurrentUsers 1=addNewChatroom 2=showCurrentChatroom " +
+                        "3=enterChatroom 4=sendMessage 5=showMessageOfCurrentChatroom");
                 int userOpCode = in.nextInt();
                 if (userOpCode==0){
                     System.out.println(client.existUserNames);
@@ -65,6 +67,22 @@ public class UserHandlerOfClient implements Runnable{
                 }
                 else if (userOpCode==2){
                     System.out.println(client.chatroomMap);
+                }
+                else if(userOpCode==3){
+                    System.out.println("please input chatroom id you want to enter");
+                    client.currentChatroomId = in.nextLong();
+                }
+                else if(userOpCode==4){
+                    System.out.println("please input your message");
+                    String blankNL = in.nextLine();
+                    String content = in.nextLine();
+                    System.out.println("echo your message " + content);
+                    Message message = new Message(System.currentTimeMillis(), client.username, null, content);
+                    message.chatroomId = client.currentChatroomId;
+                    sendNewMessage(message);
+                }
+                else if (userOpCode==5){
+                    System.out.println(client.chatroomMap.get(client.currentChatroomId).messages);
                 }
             }
         } catch (Exception e){
@@ -84,6 +102,13 @@ public class UserHandlerOfClient implements Runnable{
         HelpPacket hp = new HelpPacket();
         hp.operationCode = OperationCode.NEW_CHATROOM;
         hp.newChatRoomUsernames = usernamesOfNewChatroom;
+        objectOutputStream.writeObject(hp);
+    }
+
+    public void sendNewMessage(Message message) throws IOException {
+        HelpPacket hp = new HelpPacket();
+        hp.operationCode = OperationCode.NEW_MESSAGE;
+        hp.newMessage = message;
         objectOutputStream.writeObject(hp);
     }
 }

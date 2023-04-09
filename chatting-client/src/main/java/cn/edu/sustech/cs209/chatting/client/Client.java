@@ -1,8 +1,6 @@
 package cn.edu.sustech.cs209.chatting.client;
 
 import cn.edu.sustech.cs209.chatting.common.Chatroom;
-import cn.edu.sustech.cs209.chatting.common.HelpPacket;
-import cn.edu.sustech.cs209.chatting.common.OperationCode;
 
 import java.io.*;
 import java.net.Socket;
@@ -21,8 +19,9 @@ public class Client implements Runnable{
     public Runnable serverHandler;
     public Thread userHandlerThread;
     public Runnable userHandler;
-    public String userName;
+    public String username;
     public Map<Long, Chatroom> chatroomMap;
+    public Long currentChatroomId;
     public volatile boolean re_wanti_parti_duplicate;
 
     public Client() throws IOException {

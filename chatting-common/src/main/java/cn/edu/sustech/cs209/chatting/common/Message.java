@@ -1,6 +1,8 @@
 package cn.edu.sustech.cs209.chatting.common;
 
-public class Message {
+import java.io.Serializable;
+
+public class Message implements Serializable {
 
     private Long timestamp;
 
@@ -9,6 +11,8 @@ public class Message {
     private String sendTo;
 
     private String data;
+
+    public Long chatroomId;
 
     public Message(Long timestamp, String sentBy, String sendTo, String data) {
         this.timestamp = timestamp;
@@ -30,6 +34,11 @@ public class Message {
     }
 
     public String getData() {
+        return data;
+    }
+
+    @Override
+    public String toString() {
         return data;
     }
 }

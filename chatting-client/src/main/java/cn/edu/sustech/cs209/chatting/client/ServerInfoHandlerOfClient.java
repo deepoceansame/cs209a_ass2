@@ -2,6 +2,7 @@ package cn.edu.sustech.cs209.chatting.client;
 
 import cn.edu.sustech.cs209.chatting.common.Chatroom;
 import cn.edu.sustech.cs209.chatting.common.HelpPacket;
+import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.OperationCode;
 
 import java.io.BufferedReader;
@@ -51,6 +52,9 @@ public class ServerInfoHandlerOfClient implements Runnable{
         else if (opCode==OperationCode.RE_NEW_CHATROOM){
             handleReNewChatroom(re_hp);
         }
+        else if (opCode==OperationCode.RE_NEW_MESSAGE){
+            handleReNewMessage(re_hp);
+        }
     }
 
     public void handleReWantiToParti(HelpPacket re_hp){
@@ -72,6 +76,14 @@ public class ServerInfoHandlerOfClient implements Runnable{
         Chatroom chatroom = new Chatroom(re_hp.newChatRoomId, re_hp.newChatRoomUsernames);
         client.chatroomMap.put(re_hp.newChatRoomId, chatroom);
         System.out.println("server handler of client: add new chatRoom with " + re_hp.newChatRoomUsernames);
+    }
+
+    public void handleReNewMessage(HelpPacket re_hp) {
+        Message message = re_hp.newMessage;
+        Long chatroomId = message.chatroomId;
+        Chatroom chatroom = client.chatroomMap.get(chatroomId);
+        chatroom.messages.add(message);
+        System.out.println("received a message");
     }
 
     public void closeEverything(
