@@ -36,13 +36,13 @@ public class UserHandlerOfClient implements Runnable{
                 if (!client.hasParticipated){
                     System.out.println("please input a username");
                     String input_username = in.nextLine();
-                    sendWantiToParti(input_username);
+                    client.sendWantiToParti(input_username);
                     while (!client.hasParticipated){
                         if (client.re_wanti_parti_duplicate){
                             System.out.println("user handler: duplicate name Please input another");
                             client.re_wanti_parti_duplicate = false;
                             input_username = in.nextLine();
-                            sendWantiToParti(input_username);
+                            client.sendWantiToParti(input_username);
                         }
                     }
                     client.username = input_username;
@@ -63,7 +63,7 @@ public class UserHandlerOfClient implements Runnable{
                         usernamesArray[i] = in.next();
                     }
                     Set<String> usernamesOfNewChatroom = new HashSet<>(Arrays.asList(usernamesArray));
-                    sendNewChatroom(usernamesOfNewChatroom);
+                    client.sendNewChatroom(usernamesOfNewChatroom);
                 }
                 else if (userOpCode==2){
                     System.out.println(client.chatroomMap);
@@ -79,7 +79,7 @@ public class UserHandlerOfClient implements Runnable{
                     System.out.println("echo your message " + content);
                     Message message = new Message(System.currentTimeMillis(), client.username, null, content);
                     message.chatroomId = client.currentChatroomId;
-                    sendNewMessage(message);
+                    client.sendNewMessage(message);
                 }
                 else if (userOpCode==5){
                     System.out.println(client.chatroomMap.get(client.currentChatroomId).messages);
@@ -91,24 +91,5 @@ public class UserHandlerOfClient implements Runnable{
 
     }
 
-    public void sendWantiToParti(String userName) throws IOException {
-        HelpPacket hp = new HelpPacket();
-        hp.operationCode = OperationCode.WANT_TO_PARTI;
-        hp.newUserName = userName;
-        objectOutputStream.writeObject(hp);
-    }
 
-    public void sendNewChatroom(Set<String> usernamesOfNewChatroom) throws IOException {
-        HelpPacket hp = new HelpPacket();
-        hp.operationCode = OperationCode.NEW_CHATROOM;
-        hp.newChatRoomUsernames = usernamesOfNewChatroom;
-        objectOutputStream.writeObject(hp);
-    }
-
-    public void sendNewMessage(Message message) throws IOException {
-        HelpPacket hp = new HelpPacket();
-        hp.operationCode = OperationCode.NEW_MESSAGE;
-        hp.newMessage = message;
-        objectOutputStream.writeObject(hp);
-    }
 }

@@ -12,6 +12,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
+import javax.script.Bindings;
 import java.net.URL;
 import java.util.Objects;
 import java.util.Optional;
@@ -25,27 +26,48 @@ public class Controller implements Initializable {
 
     String username;
 
+    Client client;
+
+    @FXML
+    Label currentOnlineCnt;
+
+
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
 
-        Dialog<String> dialog = new TextInputDialog();
-        dialog.setTitle("Login");
-        dialog.setHeaderText(null);
-        dialog.setContentText("Username:");
+        try {
 
-        Optional<String> input = dialog.showAndWait();
-        if (input.isPresent() && !input.get().isEmpty()) {
+            Dialog<String> dialog = new TextInputDialog();
+            dialog.setTitle("Login");
+            dialog.setHeaderText(null);
+            dialog.setContentText("Username:");
+            client = new Client();
+            client.startHandleInfoFromServer();
+            Optional<String> input = dialog.showAndWait();
+
+            if (input.isPresent() && !input.get().isEmpty()) {
             /*
                TODO: Check if there is a user with the same name among the currently logged-in users,
                      if so, ask the user to change the username
              */
-            username = input.get();
-        } else {
-            System.out.println("Invalid username " + input + ", exiting");
-            Platform.exit();
-        }
+                username = input.get();
+                client.sendWantiToParti(username);
+                while (!client.hasParticipated){
+                    if (client.re_wanti_parti_duplicate){
+                        System.out.println("duplicate name");
+                        Platform.exit();
+                        break;
+                    }
+                }
+            } else {
+                System.out.println("Invalid username " + input + ", exiting");
+                Platform.exit();
+            }
 
-        chatContentList.setCellFactory(new MessageCellFactory());
+            chatContentList.setCellFactory(new MessageCellFactory());
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @FXML

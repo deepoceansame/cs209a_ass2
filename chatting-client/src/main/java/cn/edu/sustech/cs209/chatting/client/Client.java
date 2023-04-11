@@ -1,6 +1,9 @@
 package cn.edu.sustech.cs209.chatting.client;
 
 import cn.edu.sustech.cs209.chatting.common.Chatroom;
+import cn.edu.sustech.cs209.chatting.common.HelpPacket;
+import cn.edu.sustech.cs209.chatting.common.Message;
+import cn.edu.sustech.cs209.chatting.common.OperationCode;
 
 import java.io.*;
 import java.net.Socket;
@@ -23,6 +26,7 @@ public class Client implements Runnable{
     public Map<Long, Chatroom> chatroomMap;
     public Long currentChatroomId;
     public volatile boolean re_wanti_parti_duplicate;
+
 
     public Client() throws IOException {
         serverSocket = new Socket("localhost", 7777);
@@ -79,5 +83,24 @@ public class Client implements Runnable{
         }
     }
 
+    public void sendWantiToParti(String userName) throws IOException {
+        HelpPacket hp = new HelpPacket();
+        hp.operationCode = OperationCode.WANT_TO_PARTI;
+        hp.newUserName = userName;
+        objectOutputStream.writeObject(hp);
+    }
 
+    public void sendNewChatroom(Set<String> usernamesOfNewChatroom) throws IOException {
+        HelpPacket hp = new HelpPacket();
+        hp.operationCode = OperationCode.NEW_CHATROOM;
+        hp.newChatRoomUsernames = usernamesOfNewChatroom;
+        objectOutputStream.writeObject(hp);
+    }
+
+    public void sendNewMessage(Message message) throws IOException {
+        HelpPacket hp = new HelpPacket();
+        hp.operationCode = OperationCode.NEW_MESSAGE;
+        hp.newMessage = message;
+        objectOutputStream.writeObject(hp);
+    }
 }
