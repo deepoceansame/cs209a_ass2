@@ -17,7 +17,7 @@ public class Client implements Runnable{
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
     public Set<String> existUserNames;
-    public boolean hasParticipated;
+    public volatile boolean hasParticipated;
     public Thread serverHandlerThread;
     public Runnable serverHandler;
     public Thread userHandlerThread;
@@ -46,7 +46,7 @@ public class Client implements Runnable{
     }
 
     public void startHandleUser() {
-        UserHandlerOfClient userHandlerOfClient = new UserHandlerOfClient(this);
+        UserHandlerOfClient_Console userHandlerOfClient = new UserHandlerOfClient_Console(this);
         userHandler = userHandlerOfClient;
         userHandlerThread = new Thread(userHandler);
         userHandlerThread.start();

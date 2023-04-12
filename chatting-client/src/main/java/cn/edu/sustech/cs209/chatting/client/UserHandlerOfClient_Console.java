@@ -1,10 +1,7 @@
 package cn.edu.sustech.cs209.chatting.client;
 
-import cn.edu.sustech.cs209.chatting.common.HelpPacket;
 import cn.edu.sustech.cs209.chatting.common.Message;
-import cn.edu.sustech.cs209.chatting.common.OperationCode;
 
-import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
@@ -12,17 +9,15 @@ import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Scanner;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Collectors;
 
-public class UserHandlerOfClient implements Runnable{
+public class UserHandlerOfClient_Console implements Runnable{
 
     Client client;
     ObjectOutputStream objectOutputStream;
     ObjectInputStream objectInputStream;
     Socket serverSocket;
 
-    public UserHandlerOfClient(Client client){
+    public UserHandlerOfClient_Console(Client client){
         this.client = client;
         objectOutputStream = client.objectOutputStream;
         objectInputStream = client.objectInputStream;
@@ -34,19 +29,24 @@ public class UserHandlerOfClient implements Runnable{
             while (serverSocket.isConnected()) {
                 Scanner in = new Scanner(System.in);
                 if (!client.hasParticipated){
-                    System.out.println("please input a username");
-                    String input_username = in.nextLine();
-                    client.sendWantiToParti(input_username);
+//                    System.out.println("please input a username");
+//                    String input_username = in.nextLine();
+//                    client.sendWantiToParti(input_username);
+//                    while (!client.hasParticipated){
+//                        if (client.re_wanti_parti_duplicate){
+//                            System.out.println("user handler: duplicate name Please input another");
+//                            client.re_wanti_parti_duplicate = false;
+//                            input_username = in.nextLine();
+//                            client.sendWantiToParti(input_username);
+//                        }
+//                    }
+//                    client.username = input_username;
+//                    System.out.println("participate successful");
+                    System.out.println("please login using gui");
                     while (!client.hasParticipated){
-                        if (client.re_wanti_parti_duplicate){
-                            System.out.println("user handler: duplicate name Please input another");
-                            client.re_wanti_parti_duplicate = false;
-                            input_username = in.nextLine();
-                            client.sendWantiToParti(input_username);
-                        }
+
                     }
-                    client.username = input_username;
-                    System.out.println("participate successful");
+                    System.out.println("console: parti success");
                 }
                 System.out.println("0=showCurrentUsers 1=addNewChatroom 2=showCurrentChatroom " +
                         "3=enterChatroom 4=sendMessage 5=showMessageOfCurrentChatroom");

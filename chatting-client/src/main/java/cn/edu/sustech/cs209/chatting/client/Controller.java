@@ -43,25 +43,43 @@ public class Controller implements Initializable {
             dialog.setContentText("Username:");
             client = new Client();
             client.startHandleInfoFromServer();
+            client.startHandleUser();
             Optional<String> input = dialog.showAndWait();
+            boolean needSend = true;
 
-            if (input.isPresent() && !input.get().isEmpty()) {
-            /*
-               TODO: Check if there is a user with the same name among the currently logged-in users,
-                     if so, ask the user to change the username
-             */
-                username = input.get();
-                client.sendWantiToParti(username);
-                while (!client.hasParticipated){
-                    if (client.re_wanti_parti_duplicate){
-                        System.out.println("duplicate name");
-                        Platform.exit();
-                        break;
+            while (!client.hasParticipated){
+                if (input.isPresent() && !input.get().isEmpty()) {
+                /*
+                   TODO: Check if there is a user with the same name among the currently logged-in users,
+                         if so, ask the user to change the username
+                 */
+                    username = input.get();
+                    if (needSend){
+                        client.sendWantiToParti(username);
+                        needSend = false;
                     }
+                    if (client.re_wanti_parti_duplicate){
+                        System.out.println("gui: duplicate name");
+
+                        Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                        alert.setTitle("Information Dialog");
+                        alert.setHeaderText("input error");
+                        alert.setContentText("duplicate name!");
+                        alert.showAndWait();
+
+                        client.re_wanti_parti_duplicate = false;
+                        needSend = true;
+                        input = dialog.showAndWait();
+                    }
+                } else{
+                    Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                    alert.setTitle("Information Dialog");
+                    alert.setHeaderText("input error");
+                    alert.setContentText("invalid input");
+                    alert.showAndWait();
+                    needSend = true;
+                    input = dialog.showAndWait();
                 }
-            } else {
-                System.out.println("Invalid username " + input + ", exiting");
-                Platform.exit();
             }
 
             chatContentList.setCellFactory(new MessageCellFactory());

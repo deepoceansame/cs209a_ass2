@@ -61,6 +61,7 @@ public class ServerInfoHandlerOfClient implements Runnable{
         if (re_hp.isSuccess){
             client.existUserNames = new HashSet<>(re_hp.existUsernames);
             client.hasParticipated = true;
+            System.out.println("server handler of client: parti success");
         } else {
             System.out.println("server handler of client: duplicate Name");
             client.re_wanti_parti_duplicate = true;
@@ -83,7 +84,7 @@ public class ServerInfoHandlerOfClient implements Runnable{
         Long chatroomId = message.chatroomId;
         Chatroom chatroom = client.chatroomMap.get(chatroomId);
         chatroom.messages.add(message);
-        System.out.println("received a message");
+        System.out.println("server handler of client: received a message from " + message.getSentBy());
     }
 
     public void closeEverything(
