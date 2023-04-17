@@ -1,9 +1,13 @@
 package cn.edu.sustech.cs209.chatting.client;
 
+import cn.edu.sustech.cs209.chatting.common.Chatroom;
 import cn.edu.sustech.cs209.chatting.common.Message;
 import javafx.application.Platform;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
+import javafx.collections.MapChangeListener;
 import javafx.collections.SetChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -18,12 +22,14 @@ import javafx.util.Callback;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.stream.Collectors;
 
 public class Controller implements Initializable {
 
-
     @FXML
-    ListView<Message> chatContentList;
+    public ListView<Chatroom> chatList;
+    @FXML
+    public ListView<Message> chatContentList;
 
     @FXML
     Label currentUsername;
@@ -48,6 +54,7 @@ public class Controller implements Initializable {
             client = new Client();
             client.startHandleInfoFromServer();
             client.startHandleUser();
+            client.controller = this;
             Optional<String> input = dialog.showAndWait();
             boolean needSend = true;
 
@@ -99,6 +106,55 @@ public class Controller implements Initializable {
                             }
                         );
                         System.out.println("gui stupid bind");
+                    }
+            );
+            client.chatroomMap.addListener(
+                    (MapChangeListener<? super Long, ? super Chatroom>) change -> {
+                        Platform.runLater(
+                            () -> {
+                                chatList.setItems(FXCollections.observableList(new ArrayList<>(client.chatroomMap.values())));
+                            }
+                        );
+                        Chatroom chatroom = change.getValueAdded();
+
+//                        Platform.runLater(
+//                                ()->{
+//                                    chatroom.messages.addListener(
+//                                            (ListChangeListener<? super Message>) change1 -> {
+//                                                Platform.runLater(
+//                                                        () -> {
+//                                                            if (Objects.equals(client.currentChatroomId, chatroom.chatRoomId)) {
+//                                                                chatContentList.getItems().clear();
+//                                                                for (Message message:chatroom.messages){
+//                                                                    chatContentList.getItems().add(message);
+//                                                                }
+//                                                            }
+//                                                        }
+//                                                );
+//                                            }
+//                                    );
+//                                }
+//                        );
+
+                    }
+            );
+            chatList.getSelectionModel().selectedItemProperty().addListener(
+                    (arg0, arg1, arg2) -> {
+
+                        Chatroom chatroom = chatList.getSelectionModel().getSelectedItem();
+                        if (chatroom!=null){
+                            client.currentChatroomId = chatroom.chatRoomId;
+                            Platform.runLater(
+                                    () -> {
+//                                                    chatContentList.getItems().clear();
+//                                                    for (Message message:chatroom.messages){
+//                                                        chatContentList.getItems().add(message);
+//                                                    }
+                                        chatContentList.setItems(chatroom.messages);
+                                    }
+                            );
+                            System.out.println("gui selected chatroom: "+chatroom.messages+chatContentList.getItems());
+                        }
                     }
             );
         } catch (Exception e) {
@@ -187,6 +243,8 @@ public class Controller implements Initializable {
                 public void updateItem(Message msg, boolean empty) {
                     super.updateItem(msg, empty);
                     if (empty || Objects.isNull(msg)) {
+                        setGraphic(null);
+                        setText(null);
                         return;
                     }
 

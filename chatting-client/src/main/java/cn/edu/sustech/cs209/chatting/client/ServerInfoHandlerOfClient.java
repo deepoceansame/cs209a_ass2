@@ -4,8 +4,10 @@ import cn.edu.sustech.cs209.chatting.common.Chatroom;
 import cn.edu.sustech.cs209.chatting.common.HelpPacket;
 import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.OperationCode;
+import javafx.application.Platform;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
+import javafx.collections.ListChangeListener;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -13,6 +15,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 import java.util.HashSet;
+import java.util.Objects;
 
 public class ServerInfoHandlerOfClient implements Runnable{
 
@@ -71,13 +74,21 @@ public class ServerInfoHandlerOfClient implements Runnable{
     }
 
     public void handleReNewUsername(HelpPacket re_hp) {
-        client.existUserNames.add(re_hp.newUserName);
+        Platform.runLater(
+                () -> {
+                    client.existUserNames.add(re_hp.newUserName);
+                }
+        );
         System.out.println("server handler of client: newUser " + re_hp.newUserName);
     }
 
     public void handleReNewChatroom(HelpPacket re_hp) {
         Chatroom chatroom = new Chatroom(re_hp.newChatRoomId, re_hp.newChatRoomUsernames);
-        client.chatroomMap.put(re_hp.newChatRoomId, chatroom);
+        Platform.runLater(
+                () -> {
+                    client.chatroomMap.put(re_hp.newChatRoomId, chatroom);
+                }
+        );
         System.out.println("server handler of client: add new chatRoom with " + re_hp.newChatRoomUsernames);
     }
 
@@ -85,7 +96,11 @@ public class ServerInfoHandlerOfClient implements Runnable{
         Message message = re_hp.newMessage;
         Long chatroomId = message.chatroomId;
         Chatroom chatroom = client.chatroomMap.get(chatroomId);
-        chatroom.messages.add(message);
+        Platform.runLater(
+                ()->{
+                    chatroom.messages.add(message);
+                }
+        );
         System.out.println("server handler of client: received a message from " + message.getSentBy());
     }
 

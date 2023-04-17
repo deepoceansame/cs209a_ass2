@@ -7,7 +7,10 @@ import cn.edu.sustech.cs209.chatting.common.OperationCode;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.beans.property.StringProperty;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableMap;
 import javafx.collections.ObservableSet;
+import javafx.fxml.Initializable;
 
 import java.io.*;
 import java.net.Socket;
@@ -27,8 +30,9 @@ public class Client implements Runnable{
     public Thread userHandlerThread;
     public Runnable userHandler;
     public StringProperty username;
-    public Map<Long, Chatroom> chatroomMap;
+    public ObservableMap<Long, Chatroom>chatroomMap;
     public Long currentChatroomId;
+    public Controller controller;
     public volatile boolean re_wanti_parti_duplicate;
 
 
@@ -38,7 +42,7 @@ public class Client implements Runnable{
         objectOutputStream = new ObjectOutputStream(outputStream);
         InputStream inputStream = serverSocket.getInputStream();
         objectInputStream = new ObjectInputStream(inputStream);
-        chatroomMap = new HashMap<>();
+        chatroomMap = FXCollections.observableMap(new HashMap<>());
         hasParticipated = false;
     }
 
