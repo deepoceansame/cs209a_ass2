@@ -14,9 +14,7 @@ import javafx.util.Callback;
 
 import javax.script.Bindings;
 import java.net.URL;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.ResourceBundle;
+import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Controller implements Initializable {
@@ -81,7 +79,7 @@ public class Controller implements Initializable {
                     input = dialog.showAndWait();
                 }
             }
-
+            client.username = username;
             chatContentList.setCellFactory(new MessageCellFactory());
         } catch (Exception e) {
             e.printStackTrace();
@@ -90,26 +88,41 @@ public class Controller implements Initializable {
 
     @FXML
     public void createPrivateChat() {
-        AtomicReference<String> user = new AtomicReference<>();
+        try{
+            AtomicReference<String> user = new AtomicReference<>();
 
-        Stage stage = new Stage();
-        ComboBox<String> userSel = new ComboBox<>();
+            Stage stage = new Stage();
+            ComboBox<String> userSel = new ComboBox<>();
 
-        // FIXME: get the user list from server, the current user's name should be filtered out
-        userSel.getItems().addAll("Item 1", "Item 2", "Item 3");
+            // FIXME: get the user list from server, the current user's name should be filtered out
 
-        Button okBtn = new Button("OK");
-        okBtn.setOnAction(e -> {
-            user.set(userSel.getSelectionModel().getSelectedItem());
-            stage.close();
-        });
+            Set<String> usernames_show = new HashSet<>(client.existUserNames);
+            usernames_show.remove(client.username);
+            userSel.getItems().addAll(usernames_show);
+            System.out.println("gui "+ usernames_show);
 
-        HBox box = new HBox(10);
-        box.setAlignment(Pos.CENTER);
-        box.setPadding(new Insets(20, 20, 20, 20));
-        box.getChildren().addAll(userSel, okBtn);
-        stage.setScene(new Scene(box));
-        stage.showAndWait();
+            Button okBtn = new Button("OK");
+            okBtn.setOnAction(e -> {
+                try{
+                    user.set(userSel.getSelectionModel().getSelectedItem());
+                    Set<String> selectedUsers = new HashSet<>();
+                    selectedUsers.add(user.get());
+                    client.sendNewChatroom(selectedUsers);
+                    stage.close();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            });
+
+            HBox box = new HBox(10);
+            box.setAlignment(Pos.CENTER);
+            box.setPadding(new Insets(20, 20, 20, 20));
+            box.getChildren().addAll(userSel, okBtn);
+            stage.setScene(new Scene(box));
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
         // TODO: if the current user already chatted with the selected user, just open the chat with that user
         // TODO: otherwise, create a new chat item in the left panel, the title should be the selected user's name
@@ -127,6 +140,7 @@ public class Controller implements Initializable {
      */
     @FXML
     public void createGroupChat() {
+
     }
 
     /**
