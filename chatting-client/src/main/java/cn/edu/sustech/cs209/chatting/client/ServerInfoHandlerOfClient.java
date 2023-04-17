@@ -4,6 +4,8 @@ import cn.edu.sustech.cs209.chatting.common.Chatroom;
 import cn.edu.sustech.cs209.chatting.common.HelpPacket;
 import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.OperationCode;
+import javafx.beans.property.SimpleSetProperty;
+import javafx.collections.FXCollections;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -59,7 +61,7 @@ public class ServerInfoHandlerOfClient implements Runnable{
 
     public void handleReWantiToParti(HelpPacket re_hp){
         if (re_hp.isSuccess){
-            client.existUserNames = new HashSet<>(re_hp.existUsernames);
+            client.existUserNames = FXCollections.observableSet(re_hp.existUsernames);
             client.hasParticipated = true;
             System.out.println("server handler of client: parti success");
         } else {

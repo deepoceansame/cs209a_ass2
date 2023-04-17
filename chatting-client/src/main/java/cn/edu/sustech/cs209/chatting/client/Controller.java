@@ -2,6 +2,9 @@ package cn.edu.sustech.cs209.chatting.client;
 
 import cn.edu.sustech.cs209.chatting.common.Message;
 import javafx.application.Platform;
+import javafx.beans.binding.Bindings;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.collections.SetChangeListener;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.geometry.Insets;
@@ -12,15 +15,18 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
-import javax.script.Bindings;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
 
 public class Controller implements Initializable {
 
+
     @FXML
     ListView<Message> chatContentList;
+
+    @FXML
+    Label currentUsername;
 
     String username;
 
@@ -79,8 +85,22 @@ public class Controller implements Initializable {
                     input = dialog.showAndWait();
                 }
             }
-            client.username = username;
+            client.username = new SimpleStringProperty();
+            client.username.set(username);
+            currentUsername.textProperty().bind(client.username);
+//            currentOnlineCnt.textProperty().bind(Bindings.size(client.existUserNames).asString());
             chatContentList.setCellFactory(new MessageCellFactory());
+            currentOnlineCnt.textProperty().set(String.valueOf(client.existUserNames.size()));
+            client.existUserNames.addListener(
+                    (SetChangeListener<? super String>) change -> {
+                        Platform.runLater(
+                            ()->{
+                                currentOnlineCnt.textProperty().set(String.valueOf(client.existUserNames.size()));
+                            }
+                        );
+                        System.out.println("gui stupid bind");
+                    }
+            );
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -97,7 +117,7 @@ public class Controller implements Initializable {
             // FIXME: get the user list from server, the current user's name should be filtered out
 
             Set<String> usernames_show = new HashSet<>(client.existUserNames);
-            usernames_show.remove(client.username);
+            usernames_show.remove(client.username.get());
             userSel.getItems().addAll(usernames_show);
             System.out.println("gui "+ usernames_show);
 

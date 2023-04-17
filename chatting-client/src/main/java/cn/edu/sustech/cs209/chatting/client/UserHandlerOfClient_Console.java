@@ -77,7 +77,7 @@ public class UserHandlerOfClient_Console implements Runnable{
                     String blankNL = in.nextLine();
                     String content = in.nextLine();
                     System.out.println("echo your message " + content);
-                    Message message = new Message(System.currentTimeMillis(), client.username, null, content);
+                    Message message = new Message(System.currentTimeMillis(), client.username.getValue(), null, content);
                     message.chatroomId = client.currentChatroomId;
                     client.sendNewMessage(message);
                 }

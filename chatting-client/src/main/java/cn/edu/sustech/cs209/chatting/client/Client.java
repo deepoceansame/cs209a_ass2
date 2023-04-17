@@ -4,6 +4,10 @@ import cn.edu.sustech.cs209.chatting.common.Chatroom;
 import cn.edu.sustech.cs209.chatting.common.HelpPacket;
 import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.OperationCode;
+import javafx.beans.property.SimpleSetProperty;
+import javafx.beans.property.StringProperty;
+import javafx.beans.value.ObservableValue;
+import javafx.collections.ObservableSet;
 
 import java.io.*;
 import java.net.Socket;
@@ -16,13 +20,13 @@ public class Client implements Runnable{
     public Socket serverSocket;
     public ObjectOutputStream objectOutputStream;
     public ObjectInputStream objectInputStream;
-    public Set<String> existUserNames;
+    public volatile ObservableSet<String> existUserNames;
     public volatile boolean hasParticipated;
     public Thread serverHandlerThread;
     public Runnable serverHandler;
     public Thread userHandlerThread;
     public Runnable userHandler;
-    public String username;
+    public StringProperty username;
     public Map<Long, Chatroom> chatroomMap;
     public Long currentChatroomId;
     public volatile boolean re_wanti_parti_duplicate;
