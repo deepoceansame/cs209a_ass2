@@ -19,6 +19,7 @@ import javafx.scene.layout.HBox;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.atomic.AtomicReference;
@@ -33,14 +34,17 @@ public class Controller implements Initializable {
     @FXML
     public ListView<String> usrList;
     @FXML
-    Label currentUsername;
+    public Label currentUsername;
 
-    String username;
+    public String username;
 
-    Client client;
+    public Client client;
 
     @FXML
-    Label currentOnlineCnt;
+    public Label currentOnlineCnt;
+
+    @FXML
+    public TextArea inputArea;
 
 
     @Override
@@ -178,7 +182,7 @@ public class Controller implements Initializable {
             Set<String> usernames_show = new HashSet<>(client.existUserNames);
             usernames_show.remove(client.username.get());
             userSel.getItems().addAll(usernames_show);
-            System.out.println("gui "+ usernames_show);
+            System.out.println("gui add private chat"+ usernames_show);
 
             Button okBtn = new Button("OK");
             okBtn.setOnAction(e -> {
@@ -220,25 +224,21 @@ public class Controller implements Initializable {
     @FXML
     public void createGroupChat() {
         try{
-            AtomicReference<String> user = new AtomicReference<>();
-
             Stage stage = new Stage();
-            ComboBox<String> userSel = new ComboBox<>();
-
-            // FIXME: get the user list from server, the current user's name should be filtered out
-
+            ListView<String> users = new ListView<>();
+            users.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
             Set<String> usernames_show = new HashSet<>(client.existUserNames);
             usernames_show.remove(client.username.get());
-            userSel.getItems().addAll(usernames_show);
-            System.out.println("gui "+ usernames_show);
-
+            users.getItems().addAll(usernames_show);
+            System.out.println("gui add multiple chat"+ usernames_show);
             Button okBtn = new Button("OK");
             okBtn.setOnAction(e -> {
                 try{
-                    user.set(userSel.getSelectionModel().getSelectedItem());
-                    Set<String> selectedUsers = new HashSet<>();
-                    selectedUsers.add(user.get());
-                    client.sendNewChatroom(selectedUsers);
+                    Set<String> selectedUsers = new HashSet<>(users.getSelectionModel().getSelectedItems());
+                    System.out.println("gui add multiple chat selected usrs"+ selectedUsers);
+                    if (selectedUsers.size()>0){
+                        client.sendNewChatroom(selectedUsers);
+                    }
                     stage.close();
                 } catch (Exception e1) {
                     e1.printStackTrace();
@@ -248,7 +248,7 @@ public class Controller implements Initializable {
             HBox box = new HBox(10);
             box.setAlignment(Pos.CENTER);
             box.setPadding(new Insets(20, 20, 20, 20));
-            box.getChildren().addAll(userSel, okBtn);
+            box.getChildren().addAll(users, okBtn);
             stage.setScene(new Scene(box));
             stage.showAndWait();
         } catch (Exception e) {
@@ -263,8 +263,15 @@ public class Controller implements Initializable {
      * After sending the message, you should clear the text input field.
      */
     @FXML
-    public void doSendMessage() {
+    public void doSendMessage() throws IOException {
         // TODO
+        String data = inputArea.getText();
+        Message message = new Message(System.currentTimeMillis(), client.username.getValue(), null, data);
+        message.chatroomId = client.currentChatroomId;
+        if (client.chatroomMap.values().stream().map(chatroom -> chatroom.chatRoomId).collect(Collectors.toList()).contains(message.chatroomId)){
+            client.sendNewMessage(message);
+        }
+        inputArea.setText("");
     }
 
     /**
