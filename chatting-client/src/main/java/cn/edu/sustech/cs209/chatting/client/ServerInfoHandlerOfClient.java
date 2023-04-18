@@ -8,12 +8,15 @@ import javafx.application.Platform;
 import javafx.beans.property.SimpleSetProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ListChangeListener;
+import javafx.collections.ObservableList;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Objects;
 
@@ -65,6 +68,11 @@ public class ServerInfoHandlerOfClient implements Runnable{
     public void handleReWantiToParti(HelpPacket re_hp){
         if (re_hp.isSuccess){
             client.existUserNames = FXCollections.observableSet(re_hp.existUsernames);
+            Platform.runLater(
+                    () -> {
+                        client.controller.usrList.setItems(FXCollections.observableList(new ArrayList<>(re_hp.existUsernames)));
+                    }
+            );
             client.hasParticipated = true;
             System.out.println("server handler of client: parti success");
         } else {
@@ -84,6 +92,7 @@ public class ServerInfoHandlerOfClient implements Runnable{
 
     public void handleReNewChatroom(HelpPacket re_hp) {
         Chatroom chatroom = new Chatroom(re_hp.newChatRoomId, re_hp.newChatRoomUsernames);
+        chatroom.client_name = client.username.get();
         Platform.runLater(
                 () -> {
                     client.chatroomMap.put(re_hp.newChatRoomId, chatroom);

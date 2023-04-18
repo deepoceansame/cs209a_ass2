@@ -30,7 +30,8 @@ public class Controller implements Initializable {
     public ListView<Chatroom> chatList;
     @FXML
     public ListView<Message> chatContentList;
-
+    @FXML
+    public ListView<String> usrList;
     @FXML
     Label currentUsername;
 
@@ -103,6 +104,7 @@ public class Controller implements Initializable {
                         Platform.runLater(
                             ()->{
                                 currentOnlineCnt.textProperty().set(String.valueOf(client.existUserNames.size()));
+                                usrList.setItems(FXCollections.observableList(new ArrayList<>(client.existUserNames)));
                             }
                         );
                         System.out.println("gui stupid bind");
@@ -216,7 +218,41 @@ public class Controller implements Initializable {
      */
     @FXML
     public void createGroupChat() {
+        try{
+            AtomicReference<String> user = new AtomicReference<>();
 
+            Stage stage = new Stage();
+            ComboBox<String> userSel = new ComboBox<>();
+
+            // FIXME: get the user list from server, the current user's name should be filtered out
+
+            Set<String> usernames_show = new HashSet<>(client.existUserNames);
+            usernames_show.remove(client.username.get());
+            userSel.getItems().addAll(usernames_show);
+            System.out.println("gui "+ usernames_show);
+
+            Button okBtn = new Button("OK");
+            okBtn.setOnAction(e -> {
+                try{
+                    user.set(userSel.getSelectionModel().getSelectedItem());
+                    Set<String> selectedUsers = new HashSet<>();
+                    selectedUsers.add(user.get());
+                    client.sendNewChatroom(selectedUsers);
+                    stage.close();
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
+            });
+
+            HBox box = new HBox(10);
+            box.setAlignment(Pos.CENTER);
+            box.setPadding(new Insets(20, 20, 20, 20));
+            box.getChildren().addAll(userSel, okBtn);
+            stage.setScene(new Scene(box));
+            stage.showAndWait();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     /**

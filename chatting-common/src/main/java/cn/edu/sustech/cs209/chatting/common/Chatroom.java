@@ -1,5 +1,6 @@
 package cn.edu.sustech.cs209.chatting.common;
 
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
@@ -12,6 +13,7 @@ public class Chatroom {
     public Long chatRoomId;
     public Set<String> usernames;
     public ObservableList<Message> messages;
+    public String client_name;
 
     public Chatroom(Long chatRoomId, Set<String> usernames){
         this.chatRoomId = chatRoomId;
