@@ -99,6 +99,7 @@ public class Controller implements Initializable {
 //            currentOnlineCnt.textProperty().bind(Bindings.size(client.existUserNames).asString());
             chatContentList.setCellFactory(new MessageCellFactory());
             currentOnlineCnt.textProperty().set(String.valueOf(client.existUserNames.size()));
+            usrList.setItems(FXCollections.observableList(new ArrayList<>(client.existUserNames)));
             client.existUserNames.addListener(
                     (SetChangeListener<? super String>) change -> {
                         Platform.runLater(

@@ -68,11 +68,6 @@ public class ServerInfoHandlerOfClient implements Runnable{
     public void handleReWantiToParti(HelpPacket re_hp){
         if (re_hp.isSuccess){
             client.existUserNames = FXCollections.observableSet(re_hp.existUsernames);
-            Platform.runLater(
-                    () -> {
-                        client.controller.usrList.setItems(FXCollections.observableList(new ArrayList<>(re_hp.existUsernames)));
-                    }
-            );
             client.hasParticipated = true;
             System.out.println("server handler of client: parti success");
         } else {
