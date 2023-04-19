@@ -40,9 +40,11 @@ public class ServerInfoHandlerOfClient implements Runnable{
         catch (EOFException eof) {
             closeEverything(serverSocket, null, null,
                     objectInputStream, objectOutputStream);
+            System.out.println("eof");
             System.exit(0);
         }
         catch (SocketException sc) {
+            System.out.println("sc");
             System.exit(0);
         }
         catch (Exception e) {
