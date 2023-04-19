@@ -6,19 +6,13 @@ import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.OperationCode;
 import javafx.application.Platform;
 import javafx.beans.property.SimpleSetProperty;
-import javafx.collections.FXCollections;
-import javafx.collections.ListChangeListener;
-import javafx.collections.ObservableList;
+import javafx.collections.*;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.ObjectInputStream;
-import java.io.ObjectOutputStream;
+import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Objects;
+import java.net.SocketException;
+import java.util.*;
+
 
 public class ServerInfoHandlerOfClient implements Runnable{
 
@@ -42,7 +36,16 @@ public class ServerInfoHandlerOfClient implements Runnable{
                 HelpPacket re_hp = (HelpPacket) objectInputStream.readObject();
                 handleRehp(re_hp);
             }
-        } catch (Exception e) {
+        }
+        catch (EOFException eof) {
+            closeEverything(serverSocket, null, null,
+                    objectInputStream, objectOutputStream);
+            System.exit(0);
+        }
+        catch (SocketException sc) {
+            System.exit(0);
+        }
+        catch (Exception e) {
             e.printStackTrace();
             closeEverything(serverSocket, null, null,
                     objectInputStream, objectOutputStream);
@@ -62,6 +65,9 @@ public class ServerInfoHandlerOfClient implements Runnable{
         }
         else if (opCode==OperationCode.RE_NEW_MESSAGE){
             handleReNewMessage(re_hp);
+        }
+        else if (opCode==OperationCode.RE_USER_EXIT) {
+            handleReUserExit(re_hp);
         }
     }
 
@@ -106,6 +112,45 @@ public class ServerInfoHandlerOfClient implements Runnable{
                 }
         );
         System.out.println("server handler of client: received a message from " + message.getSentBy());
+    }
+
+    public void handleReUserExit(HelpPacket re_hp) {
+        String exitUsername = re_hp.exitedUserName;
+        System.out.println("client server handler " + exitUsername + " want to exit");
+        Platform.runLater(
+                () -> {
+                    client.existUserNames.remove(exitUsername);
+                    ObservableMap<Long, Chatroom> newChatroomMap = FXCollections.observableMap(new HashMap<>());
+                    for (Map.Entry<Long, Chatroom> entry:client.chatroomMap.entrySet()){
+                        Long chatrooId = entry.getKey();
+                        Chatroom chatroom = entry.getValue();
+                        if (chatroom.usernames.contains(exitUsername)) {
+                            chatroom.usernames.remove(exitUsername);
+                            if (chatroom.usernames.size()>=2){
+                                Chatroom newRoom = new Chatroom(chatrooId, new HashSet<>(chatroom.usernames));
+                                newRoom.messages = FXCollections.observableList(chatroom.messages);
+                                newChatroomMap.put(chatrooId, newRoom);
+                            }
+                        } else {
+                            newChatroomMap.put(chatrooId, chatroom);
+                        }
+                    }
+                    client.chatroomMap = newChatroomMap;
+                    client.chatroomMap.addListener(
+                            (MapChangeListener<? super Long, ? super Chatroom>) change -> {
+                                Platform.runLater(
+                                        () -> {
+                                            client.controller.chatList
+                                                    .setItems(FXCollections.observableList(new ArrayList<>(client.chatroomMap.values())));
+                                        }
+                                );
+                            }
+                    );
+                    client.controller.chatList
+                            .setItems(FXCollections.observableList(new ArrayList<>(client.chatroomMap.values())));
+                    client.controller.chatContentList.setItems(FXCollections.observableList(new ArrayList<>()));
+                }
+        );
     }
 
     public void closeEverything(

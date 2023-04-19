@@ -4,13 +4,12 @@ import cn.edu.sustech.cs209.chatting.common.Chatroom;
 import cn.edu.sustech.cs209.chatting.common.HelpPacket;
 import cn.edu.sustech.cs209.chatting.common.Message;
 import cn.edu.sustech.cs209.chatting.common.OperationCode;
+import javafx.collections.FXCollections;
 
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.net.SocketException;
+import java.util.*;
 
 class ClientHandler implements Runnable {
 
@@ -40,7 +39,15 @@ class ClientHandler implements Runnable {
                 System.out.println("OperationCode " + hp.operationCode);
                 handleHelpPacket(hp);
             }
-        } catch (Exception e) {
+        }
+        catch (EOFException eof) {
+            closeEverything(clientSocket, null, null,
+                    objectInputStream, objectOutputStream);
+        }
+        catch (SocketException se) {
+            Thread.currentThread().interrupt();
+        }
+        catch (Exception e) {
             e.printStackTrace();
             closeEverything(clientSocket, null, null,
                     objectInputStream, objectOutputStream);
@@ -61,7 +68,11 @@ class ClientHandler implements Runnable {
         else if (opCode==OperationCode.NEW_MESSAGE) {
             handleNewMessage(hp);
         }
+        else if (opCode==OperationCode.WANT_TO_EXIT) {
+            handleWantToExit(hp);
+        }
     }
+
 
     private void handleWantToParti(HelpPacket hp) throws IOException {
         String userNameHP = hp.newUserName;
@@ -139,6 +150,35 @@ class ClientHandler implements Runnable {
 
     }
 
+    private void handleWantToExit(HelpPacket hp) throws IOException {
+        String exitUsername = hp.exitedUserName;
+        System.out.println("serer client handler: " + exitUsername + " want to exit");
+        server.usernames.remove(exitUsername);
+        server.userNameToClientHandler.remove(exitUsername);
+        Map<Long, Chatroom> newChatroomMap = new HashMap<>();
+        for (Map.Entry<Long, Chatroom> entry:server.chatroomMap.entrySet()) {
+            Long chatrooId = entry.getKey();
+            Chatroom chatroom = entry.getValue();
+            if (chatroom.usernames.contains(username)) {
+                chatroom.usernames.remove(exitUsername);
+                if (chatroom.usernames.size()>=2){
+                    newChatroomMap.put(chatrooId, chatroom);
+                }
+            }
+            else {
+                newChatroomMap.put(chatrooId, chatroom);
+            }
+        }
+        server.chatroomMap = newChatroomMap;
+        ClientHandler ch;
+        for (String name:server.usernames) {
+            ch = server.userNameToClientHandler.get(name);
+            ch.sendReUserExit(exitUsername);
+            ch.closeEverything(clientSocket, null, null,
+                    objectInputStream, objectOutputStream);
+        }
+    }
+
     public void sendReNewUsername(String username) throws IOException {
         HelpPacket hp = new HelpPacket();
         hp.newUserName = username;
@@ -163,7 +203,13 @@ class ClientHandler implements Runnable {
         objectOutputStream.writeObject(hp);
         objectOutputStream.flush();
     }
-
+    public void sendReUserExit(String exitUsername) throws IOException {
+        HelpPacket hp = new HelpPacket();
+        hp.exitedUserName = exitUsername;
+        hp.operationCode = OperationCode.RE_USER_EXIT;
+        objectOutputStream.writeObject(hp);
+        objectOutputStream.flush();
+    }
     public void closeEverything(
             Socket socket,
             BufferedReader bufferedReader, BufferedWriter bufferedWriter,

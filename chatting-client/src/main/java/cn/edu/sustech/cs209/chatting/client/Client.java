@@ -96,6 +96,7 @@ public class Client implements Runnable{
         hp.operationCode = OperationCode.WANT_TO_PARTI;
         hp.newUserName = userName;
         objectOutputStream.writeObject(hp);
+        objectOutputStream.flush();
     }
 
     public void sendNewChatroom(Set<String> usernamesOfNewChatroom) throws IOException {
@@ -103,6 +104,7 @@ public class Client implements Runnable{
         hp.operationCode = OperationCode.NEW_CHATROOM;
         hp.newChatRoomUsernames = usernamesOfNewChatroom;
         objectOutputStream.writeObject(hp);
+        objectOutputStream.flush();
     }
 
     public void sendNewMessage(Message message) throws IOException {
@@ -110,5 +112,14 @@ public class Client implements Runnable{
         hp.operationCode = OperationCode.NEW_MESSAGE;
         hp.newMessage = message;
         objectOutputStream.writeObject(hp);
+        objectOutputStream.flush();
+    }
+
+    public void sendWantiExit() throws IOException {
+        HelpPacket hp = new HelpPacket();
+        hp.operationCode = OperationCode.WANT_TO_EXIT;
+        hp.exitedUserName = username.get();
+        objectOutputStream.writeObject(hp);
+        objectOutputStream.flush();
     }
 }
