@@ -27,17 +27,17 @@ public class Main extends Application {
         stage.setOnCloseRequest(windowEvent -> {
             try {
 
-                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-                alert.setTitle("exit");
-                alert.setHeaderText("exit?");
-                alert.setContentText("exit?");
-                if (alert.showAndWait().get() == ButtonType.OK) {
-                    Controller controller = (Controller) fxmlLoader.getController();
-                    controller.client.sendWantiExit();
-                    stage.close();
-                    controller.client.closeEverything(controller.client.serverSocket, null, null,
-                            controller.client.objectInputStream, controller.client.objectOutputStream);
-                }
+//                Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+//                alert.setTitle("exit");
+//                alert.setHeaderText("exit?");
+//                alert.setContentText("exit?");
+//                if (alert.showAndWait().isPresent() && alert.showAndWait().get() == ButtonType.OK) {
+                Controller controller = (Controller) fxmlLoader.getController();
+                controller.client.sendWantiExit();
+                stage.close();
+                controller.client.closeEverything(controller.client.serverSocket, null, null,
+                        controller.client.objectInputStream, controller.client.objectOutputStream);
+//                }
             } catch (Exception e) {
                 e.printStackTrace();
             }

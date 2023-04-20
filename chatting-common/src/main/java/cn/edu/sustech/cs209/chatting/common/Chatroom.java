@@ -23,6 +23,30 @@ public class Chatroom {
 
     @Override
     public String toString() {
-        return "[" + chatRoomId + " " + usernames + "]";
+        if(usernames.size()>2){
+            List<String> sortedUsernameList = new ArrayList<>(usernames);
+            Collections.sort(sortedUsernameList);
+            StringBuilder chatroomNameBuilder = new StringBuilder();
+            chatroomNameBuilder.append(sortedUsernameList.get(0));
+            chatroomNameBuilder.append(", ");
+            chatroomNameBuilder.append(sortedUsernameList.get(1));
+            chatroomNameBuilder.append(", ");
+            chatroomNameBuilder.append(sortedUsernameList.get(2));
+            if (sortedUsernameList.size()>3){
+                chatroomNameBuilder.append("...");
+            }
+            chatroomNameBuilder.append("(");
+            chatroomNameBuilder.append(usernames.size());
+            chatroomNameBuilder.append(")");
+            return  chatroomNameBuilder.toString();
+        } else {
+            for (String name:usernames){
+                if (!name.equals(client_name)){
+                    System.out.println("chatroomModel :" + name + " " + usernames + " " + client_name);
+                    return name;
+                }
+            }
+        }
+        return "name error";
     }
 }

@@ -188,9 +188,37 @@ public class Controller implements Initializable {
             okBtn.setOnAction(e -> {
                 try{
                     user.set(userSel.getSelectionModel().getSelectedItem());
-                    Set<String> selectedUsers = new HashSet<>();
-                    selectedUsers.add(user.get());
-                    client.sendNewChatroom(selectedUsers);
+                    if (user.get()!=null){
+                        boolean isPrivateChatroomExist = false;
+                        Long chatroomIdToGo = 0l;
+                        for (Map.Entry<Long, Chatroom> entry: client.chatroomMap.entrySet()){
+                            Long chatRoomId = entry.getKey();
+                            Chatroom chatroom = entry.getValue();
+                            if (chatroom.usernames.size()==2 && chatroom.usernames.contains(user.get())){
+                                isPrivateChatroomExist = true;
+                                chatroomIdToGo = chatRoomId;
+                            }
+                        }
+                        if (isPrivateChatroomExist){
+                            Chatroom chatroom = client.chatroomMap.get(chatroomIdToGo);
+                            client.currentChatroomId = chatroom.chatRoomId;
+                            Platform.runLater(
+                                    () -> {
+//                                                    chatContentList.getItems().clear();
+//                                                    for (Message message:chatroom.messages){
+//                                                        chatContentList.getItems().add(message);
+//                                                    }
+                                        chatContentList.setItems(chatroom.messages);
+                                    }
+                            );
+                            System.out.println("gui private chat has existed: "
+                                    +chatroom.messages+chatContentList.getItems());
+                        } else {
+                            Set<String> selectedUsers = new HashSet<>();
+                            selectedUsers.add(user.get());
+                            client.sendNewChatroom(selectedUsers);
+                        }
+                    }
                     stage.close();
                 } catch (Exception e1) {
                     e1.printStackTrace();

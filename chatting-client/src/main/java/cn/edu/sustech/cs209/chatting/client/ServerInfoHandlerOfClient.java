@@ -148,6 +148,9 @@ public class ServerInfoHandlerOfClient implements Runnable{
                                 );
                             }
                     );
+                    for (Chatroom chatroom:client.chatroomMap.values()){
+                        chatroom.client_name = client.username.get();
+                    }
                     client.controller.chatList
                             .setItems(FXCollections.observableList(new ArrayList<>(client.chatroomMap.values())));
                     client.controller.chatContentList.setItems(FXCollections.observableList(new ArrayList<>()));
