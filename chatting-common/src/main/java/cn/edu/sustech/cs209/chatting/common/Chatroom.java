@@ -27,6 +27,8 @@ public class Chatroom {
             List<String> sortedUsernameList = new ArrayList<>(usernames);
             Collections.sort(sortedUsernameList);
             StringBuilder chatroomNameBuilder = new StringBuilder();
+            chatroomNameBuilder.append(chatRoomId);
+            chatroomNameBuilder.append("-");
             chatroomNameBuilder.append(sortedUsernameList.get(0));
             chatroomNameBuilder.append(", ");
             chatroomNameBuilder.append(sortedUsernameList.get(1));
@@ -43,7 +45,7 @@ public class Chatroom {
             for (String name:usernames){
                 if (!name.equals(client_name)){
                     System.out.println("chatroomModel :" + name + " " + usernames + " " + client_name);
-                    return name;
+                    return chatRoomId + " " + name;
                 }
             }
         }

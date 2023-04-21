@@ -31,6 +31,7 @@
         </VBox>
 
         <SplitPane dividerPositions="0.85" orientation="VERTICAL" prefHeight="200.0" prefWidth="160.0">
+            <Label fx:id="usernamesOfChatroom" prefHeight="10.0" HBox.hgrow="ALWAYS"/>
             <ListView fx:id="chatContentList" prefHeight="200.0" prefWidth="200.0"/>
             <HBox prefHeight="100.0" prefWidth="200.0">
                 <TextArea fx:id="inputArea" prefHeight="138.0" prefWidth="624.0" HBox.hgrow="ALWAYS"/>
@@ -52,6 +53,7 @@
                 <Color red="0.625" green="0.625" blue="0.625" fx:id="x4"/>
             </textFill>
         </Label>
+        <Label fx:id="notifyMessage" HBox.hgrow="ALWAYS"/>
         <Pane HBox.hgrow="ALWAYS"/>
         <Label fx:id="currentOnlineCnt" font="$x3" text="Online: 1" textFill="$x4" HBox.hgrow="NEVER"/>
     </HBox>

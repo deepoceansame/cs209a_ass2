@@ -45,6 +45,8 @@ public class Controller implements Initializable {
 
     @FXML
     public TextArea inputArea;
+    public Label usernamesOfChatroom;
+    public Label notifyMessage;
 
 
     @Override
@@ -158,6 +160,7 @@ public class Controller implements Initializable {
 //                                                        chatContentList.getItems().add(message);
 //                                                    }
                                         chatContentList.setItems(chatroom.messages);
+                                        usernamesOfChatroom.textProperty().set(chatroom.usernames.toString());
                                     }
                             );
                             System.out.println("gui selected chatroom: "+chatroom.messages+chatContentList.getItems());
@@ -209,6 +212,7 @@ public class Controller implements Initializable {
 //                                                        chatContentList.getItems().add(message);
 //                                                    }
                                         chatContentList.setItems(chatroom.messages);
+                                        usernamesOfChatroom.textProperty().set(chatroom.usernames.toString());
                                     }
                             );
                             System.out.println("gui private chat has existed: "

@@ -111,6 +111,8 @@ public class ServerInfoHandlerOfClient implements Runnable{
         Platform.runLater(
                 ()->{
                     chatroom.messages.add(message);
+                    client.controller.notifyMessage.textProperty().set("get message from " + message.getSentBy() +
+                            " in chatroom of id " + chatroomId);
                 }
         );
         System.out.println("server handler of client: received a message from " + message.getSentBy());
@@ -154,6 +156,7 @@ public class ServerInfoHandlerOfClient implements Runnable{
                     client.controller.chatList
                             .setItems(FXCollections.observableList(new ArrayList<>(client.chatroomMap.values())));
                     client.controller.chatContentList.setItems(FXCollections.observableList(new ArrayList<>()));
+                    client.controller.usernamesOfChatroom.textProperty().set("");
                 }
         );
     }
