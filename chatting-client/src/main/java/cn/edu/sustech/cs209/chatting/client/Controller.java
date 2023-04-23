@@ -298,6 +298,10 @@ public class Controller implements Initializable {
     public void doSendMessage() throws IOException {
         // TODO
         String data = inputArea.getText();
+        if(data.trim().length() == 0){
+            inputArea.setText("");
+            return;
+        }
         Message message = new Message(System.currentTimeMillis(), client.username.getValue(), null, data);
         message.chatroomId = client.currentChatroomId;
         if (client.chatroomMap.values().stream().map(chatroom -> chatroom.chatRoomId).collect(Collectors.toList()).contains(message.chatroomId)){
