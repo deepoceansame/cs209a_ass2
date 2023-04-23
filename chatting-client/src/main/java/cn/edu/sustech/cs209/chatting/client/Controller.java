@@ -109,7 +109,7 @@ public class Controller implements Initializable {
             client.existUserNames.addListener(
                     (SetChangeListener<? super String>) change -> {
                         Platform.runLater(
-                            ()->{
+                            () -> {
                                 currentOnlineCnt.textProperty().set(String.valueOf(client.existUserNames.size()));
                                 usrList.setItems(FXCollections.observableList(new ArrayList<>(client.existUserNames)));
                             }
@@ -151,7 +151,7 @@ public class Controller implements Initializable {
                     (arg0, arg1, arg2) -> {
 
                         Chatroom chatroom = chatList.getSelectionModel().getSelectedItem();
-                        if (chatroom!=null){
+                        if (chatroom != null){
                             client.currentChatroomId = chatroom.chatRoomId;
                             Platform.runLater(
                                     () -> {
@@ -163,7 +163,7 @@ public class Controller implements Initializable {
                                         usernamesOfChatroom.textProperty().set(chatroom.usernames.toString());
                                     }
                             );
-                            System.out.println("gui selected chatroom: "+chatroom.messages+chatContentList.getItems());
+                            System.out.println("gui selected chatroom: "+ chatroom.messages+chatContentList.getItems());
                         }
                     }
             );
@@ -174,7 +174,7 @@ public class Controller implements Initializable {
 
     @FXML
     public void createPrivateChat() {
-        try{
+        try {
             AtomicReference<String> user = new AtomicReference<>();
 
             Stage stage = new Stage();
@@ -189,9 +189,9 @@ public class Controller implements Initializable {
 
             Button okBtn = new Button("OK");
             okBtn.setOnAction(e -> {
-                try{
+                try {
                     user.set(userSel.getSelectionModel().getSelectedItem());
-                    if (user.get()!=null){
+                    if (user.get() != null){
                         boolean isPrivateChatroomExist = false;
                         Long chatroomIdToGo = 0l;
                         for (Map.Entry<Long, Chatroom> entry: client.chatroomMap.entrySet()){
